@@ -1,50 +1,264 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kubuny</title>
-  <style>
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif;
-      background: linear-gradient(135deg, #fde2e4, #e2ecfd);
-      color: #333;
-    }
-    .card {
-      background: #fff;
-      padding: 48px 40px;
-      border-radius: 24px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-      text-align: center;
-      max-width: 360px;
-      width: 85%;
-    }
-    h1 { margin: 0; font-size: 2rem; }
-    .sub { margin: 4px 0 24px; color: #888; }
-    ul { list-style: none; padding: 0; margin: 0; }
-    li {
-      background: #f6f6f8;
-      margin: 10px 0;
-      padding: 12px;
-      border-radius: 12px;
-    }
-    a { display: inline-block; margin-top: 24px; color: #0969da; text-decoration: none; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>くぶにー | 自己紹介</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    font-family: "Hiragino Maru Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+    background: #fff7f3;
+    color: #2b2b3a;
+  }
+
+  /* 背景のふわふわ玉 */
+  .bubble {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(40px);
+    opacity: .55;
+    animation: float 14s ease-in-out infinite;
+    z-index: 0;
+  }
+  .b1 { width: 340px; height: 340px; background: #ffc8d6; top: -80px; left: -60px; }
+  .b2 { width: 280px; height: 280px; background: #c8dcff; bottom: -60px; right: -40px; animation-delay: -5s; }
+  .b3 { width: 200px; height: 200px; background: #fff0b3; top: 40%; left: 60%; animation-delay: -9s; }
+  @keyframes float {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(40px, -30px); }
+  }
+
+  /* スライド */
+  .slide {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px 80px;
+    text-align: center;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(60px);
+    transition: opacity .6s ease, transform .6s ease;
+    z-index: 1;
+  }
+  .slide.active { opacity: 1; transform: none; pointer-events: auto; }
+  .slide.prev { transform: translateX(-60px); }
+
+  /* 中身が順番に出てくる */
+  .slide .in {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity .6s ease, transform .6s ease;
+  }
+  .slide.active .in { opacity: 1; transform: none; }
+  .slide.active .in:nth-child(1) { transition-delay: .2s; }
+  .slide.active .in:nth-child(2) { transition-delay: .45s; }
+  .slide.active .in:nth-child(3) { transition-delay: .7s; }
+  .slide.active .in:nth-child(4) { transition-delay: .95s; }
+  .slide.active .in:nth-child(5) { transition-delay: 1.2s; }
+  .slide.active .in:nth-child(6) { transition-delay: 1.45s; }
+
+  .label {
+    font-size: 14px;
+    letter-spacing: .2em;
+    color: #e0607e;
+    font-weight: bold;
+    margin-bottom: 12px;
+  }
+  h1 { font-size: clamp(44px, 9vw, 88px); line-height: 1.1; }
+  h2 { font-size: clamp(30px, 5.5vw, 52px); margin-bottom: 28px; }
+  .sub { font-size: clamp(16px, 2.4vw, 22px); color: #6b6b80; margin-top: 16px; }
+  .big-emoji { font-size: clamp(64px, 12vw, 110px); margin-bottom: 12px; display: inline-block; }
+  .bounce { animation: bounce 1.6s ease-in-out infinite; }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-14px); }
+  }
+
+  .card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 20px 28px;
+    box-shadow: 0 8px 24px rgba(224, 96, 126, .12);
+    font-size: clamp(17px, 2.4vw, 22px);
+    margin: 8px 0;
+    min-width: min(460px, 86vw);
+    text-align: left;
+  }
+  .card b { color: #e0607e; }
+
+  /* レベルバー */
+  .level { width: min(460px, 86vw); margin-top: 20px; text-align: left; }
+  .level-top { display: flex; justify-content: space-between; font-size: 15px; color: #6b6b80; margin-bottom: 6px; }
+  .bar { height: 14px; background: #f1e6ea; border-radius: 99px; overflow: hidden; }
+  .bar-fill { height: 100%; width: 0; background: linear-gradient(90deg, #ff9db5, #e0607e); border-radius: 99px; transition: width 1.4s ease 1s; }
+  .slide.active .bar-fill { width: 12%; }
+
+  /* タイムライン */
+  .timeline { text-align: left; width: min(520px, 88vw); }
+  .step { display: flex; align-items: center; gap: 16px; margin: 10px 0; }
+  .num {
+    flex: none; width: 40px; height: 40px; border-radius: 50%;
+    background: #e0607e; color: #fff; font-weight: bold;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .step-text { background: #fff; padding: 12px 18px; border-radius: 14px; flex: 1; box-shadow: 0 4px 14px rgba(0,0,0,.05); font-size: clamp(15px, 2.2vw, 19px); }
+  code { background: #f6eef1; padding: 1px 6px; border-radius: 6px; font-family: Consolas, Menlo, monospace; color: #c2416a; }
+
+  .btn {
+    display: inline-block;
+    margin-top: 28px;
+    padding: 14px 32px;
+    background: #2b2b3a;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 99px;
+    font-weight: bold;
+    transition: transform .2s;
+  }
+  .btn:hover { transform: scale(1.06); }
+
+  /* 下の操作バー */
+  .nav {
+    position: fixed;
+    bottom: 20px; left: 50%;
+    transform: translateX(-50%);
+    display: flex; align-items: center; gap: 16px;
+    z-index: 5;
+  }
+  .nav button {
+    width: 44px; height: 44px; border-radius: 50%;
+    border: none; background: #fff; color: #2b2b3a;
+    font-size: 18px; cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0,0,0,.08);
+  }
+  .nav button:disabled { opacity: .3; cursor: default; }
+  .dots { display: flex; gap: 8px; }
+  .dots span { width: 8px; height: 8px; border-radius: 99px; background: #e8cdd5; transition: all .3s; cursor: pointer; }
+  .dots span.on { width: 24px; background: #e0607e; }
+  .progress { position: fixed; top: 0; left: 0; height: 4px; background: #e0607e; transition: width .5s ease; z-index: 5; }
+  .hint { position: fixed; top: 16px; right: 20px; font-size: 13px; color: #a5a5b5; z-index: 5; }
+</style>
 </head>
 <body>
-  <div class="card">
-    <h1>くぶにー</h1>
-    <p class="sub">Kubuny</p>
-    <ul>
-      <li>💻 プログラム初心者</li>
-      <li>🐰 チバニーが好き</li>
-    </ul>
-    <a href="https://github.com/Kubuny">GitHub →</a>
+<div class="bubble b1"></div>
+<div class="bubble b2"></div>
+<div class="bubble b3"></div>
+<div class="progress" id="progress"></div>
+<div class="hint">← → キー / スワイプで移動</div>
+
+<!-- 1. タイトル -->
+<section class="slide">
+  <div class="in label">SELF INTRODUCTION</div>
+  <h1 class="in">くぶにー</h1>
+  <p class="in sub">Kubuny / 自己紹介スライド</p>
+</section>
+
+<!-- 2. わたしについて -->
+<section class="slide">
+  <div class="in label">ABOUT ME</div>
+  <h2 class="in">わたしについて</h2>
+  <div class="in card">👤 <b>名前</b>　くぶにー（Kubuny）</div>
+  <div class="in card">💻 <b>レベル</b>　プログラム初心者</div>
+  <div class="in level">
+    <div class="level-top"><span>Programming</span><span>Lv.1</span></div>
+    <div class="bar"><div class="bar-fill"></div></div>
   </div>
+</section>
+
+<!-- 3. 好きなもの -->
+<section class="slide">
+  <div class="in label">FAVORITE</div>
+  <div class="in big-emoji bounce">🐰</div>
+  <h2 class="in">チバニーが好き</h2>
+  <p class="in sub">いちばん好きなもの。</p>
+</section>
+
+<!-- 4. このサイトができるまで -->
+<section class="slide">
+  <div class="in label">HOW I MADE THIS</div>
+  <h2 class="in">このサイトができるまで</h2>
+  <div class="in timeline">
+    <div class="step"><div class="num">1</div><div class="step-text">GitHub で <code>kubuny.github.io</code> を作成</div></div>
+    <div class="step"><div class="num">2</div><div class="step-text">HTML をはじめて書いてみる</div></div>
+    <div class="step"><div class="num">3</div><div class="step-text"><code>test.html</code> → <code>index.html</code> に名前を変更</div></div>
+    <div class="step"><div class="num">4</div><div class="step-text">GitHub Pages で公開！</div></div>
+  </div>
+</section>
+
+<!-- 5. これから -->
+<section class="slide">
+  <div class="in label">NEXT</div>
+  <h2 class="in">これからやりたいこと</h2>
+  <div class="in card">🌱 HTML と CSS をもっと覚える</div>
+  <div class="in card">✨ JavaScript で動きをつけてみる</div>
+  <div class="in card">🛠️ このサイトを少しずつ育てる</div>
+</section>
+
+<!-- 6. おわり -->
+<section class="slide">
+  <div class="in big-emoji bounce">🙌</div>
+  <h1 class="in">Thank you!</h1>
+  <p class="in sub">見てくれてありがとうございました</p>
+  <a class="in btn" href="https://github.com/Kubuny" target="_blank">GitHub を見る →</a>
+</section>
+
+<div class="nav">
+  <button id="prevBtn" aria-label="前へ">←</button>
+  <div class="dots" id="dots"></div>
+  <button id="nextBtn" aria-label="次へ">→</button>
+</div>
+
+<script>
+const slides = [...document.querySelectorAll(".slide")];
+const dots = document.getElementById("dots");
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+const progress = document.getElementById("progress");
+let current = 0;
+
+slides.forEach((_, i) => {
+  const d = document.createElement("span");
+  d.addEventListener("click", () => go(i));
+  dots.appendChild(d);
+});
+
+function go(n) {
+  if (n < 0 || n >= slides.length) return;
+  slides.forEach((s, i) => {
+    s.classList.toggle("active", i === n);
+    s.classList.toggle("prev", i < n);
+  });
+  [...dots.children].forEach((d, i) => d.classList.toggle("on", i === n));
+  prevBtn.disabled = n === 0;
+  nextBtn.disabled = n === slides.length - 1;
+  progress.style.width = ((n + 1) / slides.length * 100) + "%";
+  current = n;
+}
+
+prevBtn.onclick = () => go(current - 1);
+nextBtn.onclick = () => go(current + 1);
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowRight" || e.key === " ") go(current + 1);
+  if (e.key === "ArrowLeft") go(current - 1);
+});
+
+let startX = null;
+document.addEventListener("touchstart", e => startX = e.touches[0].clientX);
+document.addEventListener("touchend", e => {
+  if (startX === null) return;
+  const dx = e.changedTouches[0].clientX - startX;
+  if (dx < -50) go(current + 1);
+  if (dx > 50) go(current - 1);
+  startX = null;
+});
+
+go(0);
+</script>
 </body>
 </html>
